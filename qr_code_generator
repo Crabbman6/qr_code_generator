@@ -1,0 +1,73 @@
+import tkinter as tk
+from tkinter import ttk, filedialog
+import qrcode
+from PIL import ImageTk, Image
+
+class QRCodeGenerator(tk.Tk):
+    def __init__(self):
+        super().__init__()
+
+        self.title("QR Code Generator")
+        self.geometry("500x500")
+
+        self.create_widgets()
+
+    def create_widgets(self):
+        self.input_frame = ttk.Frame(self)
+        self.input_frame.pack(pady=20)
+
+        ttk.Label(self.input_frame, text="Text:").grid(row=0, column=0, padx=5)
+        self.text_entry = ttk.Entry(self.input_frame, width=50)
+        self.text_entry.grid(row=0, column=1, padx=5)
+
+        self.generate_button = ttk.Button(self.input_frame, text="Generate QR Code", command=self.generate_qr_code)
+        self.generate_button.grid(row=0, column=2, padx=5)
+
+        self.qr_code_canvas = tk.Canvas(self, width=300, height=300, bg="white")
+        self.qr_code_canvas.pack(pady=20)
+
+        self.save_button = ttk.Button(self, text="Save QR Code", command=self.save_qr_code)
+        self.save_button.pack(pady=5)
+
+    def generate_qr_code(self):
+        text = self.text_entry.get()
+
+        if text:
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_L,
+                box_size=10,
+                border=4,
+            )
+            qr.add_data(text)
+            qr.make(fit=True)
+
+            img = qr.make_image(fill_color="black", back_color="white")
+            self.qr_img = ImageTk.PhotoImage(img)
+
+            self.qr_code_canvas.create_image(150, 150, image=self.qr_img)
+        else:
+            self.qr_code_canvas.delete("all")
+
+    def save_qr_code(self):
+        text = self.text_entry.get()
+
+        if text:
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_L,
+                box_size=10,
+                border=4,
+            )
+            qr.add_data(text)
+            qr.make(fit=True)
+
+            img = qr.make_image(fill_color="black", back_color="white")
+
+            file_path = filedialog.asksaveasfilename(defaultextension=".png", filetypes=[("PNG Files", "*.png"), ("JPEG Files", "*.jpg"), ("All Files", "*.*")])
+            if file_path:
+                img.save(file_path)
+
+if __name__ == "__main__":
+    app = QRCodeGenerator()
+    app.mainloop()
